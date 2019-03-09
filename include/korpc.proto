@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+import "google/protobuf/descriptor.proto";
+
+package korpc;
+
+extend google.protobuf.MethodOptions {
+  Options options = 98374687; // Randomly chosen
+}
+
+message Options {
+  string service_account = 1;
+
+  int32 container_concurrency = 2;
+
+  // TODO(mattmoor): Resources
+
+  repeated KeyValue env = 4;
+}
+
+message KeyValue {
+  string name = 1;
+  string value = 2;
+}
