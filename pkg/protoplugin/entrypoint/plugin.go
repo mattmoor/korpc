@@ -95,8 +95,6 @@ func (p *plugin) doMeta(stuff *parameter.Stuff, request *plugin_go.CodeGenerator
 	return &resp, nil
 }
 
-var tmpl = template.Must(template.New("entrypoint").Parse(entrypointTemplate))
-
 func (p *plugin) doMethod(stuff *parameter.Stuff, request *plugin_go.CodeGeneratorRequest) (*plugin_go.CodeGeneratorResponse, error) {
 	codegen := make(map[string]struct{})
 	for _, file := range request.FileToGenerate {
@@ -159,8 +157,8 @@ func impl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescript
 		"Receiver":     "(s *server) ",
 	}
 	if mdp.GetServerStreaming() {
-		opt["Body"] = "return impl.Impl(stream)"
-		return execToString(scaffold.StreamMethod, opt)
+		opt["Body"] = "return impl.Impl(stream.Context(), input, output)"
+		return execToString(streamMethod, opt)
 	} else {
 		opt["Body"] = "return impl.Impl(ctx, req)"
 		return execToString(scaffold.UnaryMethod, opt)
@@ -170,7 +168,7 @@ func impl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescript
 func unimpl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescriptorProto) (string, error) {
 	t, et := scaffold.UnaryMethod, scaffold.UnaryError
 	if mdp.GetServerStreaming() {
-		t, et = scaffold.StreamMethod, scaffold.StreamError
+		t, et = streamMethod, scaffold.StreamError
 	}
 
 	body, err := execToString(et, fmt.Sprintf("RPC Method %s.%s is not implemented",

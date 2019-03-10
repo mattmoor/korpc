@@ -14,6 +14,10 @@
 
 package entrypoint
 
+import (
+	"text/template"
+)
+
 type options struct {
 	ProtoImportPath      string
 	ImplImportPath       string
@@ -31,8 +35,10 @@ import (
 	"log"
 	"net"
 	"os"
+	"io"
 
 	"golang.org/x/net/context"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	pb "{{.ProtoImportPath}}"
@@ -64,4 +70,53 @@ var _ = errors.New("don't complain about the import")
 {{$val}}
 {{end}}
 `
+
+	streamSkeleton = `
+func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
+        input := make(chan *pb.{{.RequestType}})
+        output := make(chan *pb.{{.ResponseType}})
+
+        grp := errgroup.Group{}
+        grp.Go(func() error {
+                defer close(input)
+                for {
+                        req, err := stream.Recv()
+                        if err == io.EOF {
+                                return nil
+                        }
+                        if err != nil {
+                                return err
+                        }
+                        input <- req
+                }
+        })
+
+        grp.Go(func() error {
+                for {
+                        select {
+                        case resp, ok := <-output:
+                                if !ok {
+                                        // Quit when the output channel closes.
+                                        return nil
+                                }
+                                if err := stream.Send(resp); err != nil {
+                                        return err
+                                }
+                        }
+                }
+        })
+
+        grp.Go(func() error {
+                defer close(output)
+                {{.Body}}
+        })
+
+        return grp.Wait()
+}
+`
+)
+
+var (
+	tmpl         = template.Must(template.New("entrypoint").Parse(entrypointTemplate))
+	streamMethod = template.Must(template.New("stream").Parse(streamSkeleton))
 )

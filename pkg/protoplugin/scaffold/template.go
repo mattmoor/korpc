@@ -34,9 +34,6 @@ import (
 	pb "{{.ProtoImportPath}}"
 )
 
-// Avoid import errors for streams.
-var _ = context.TODO()
-
 {{.Body}}
 `
 
@@ -53,7 +50,8 @@ func {{.Receiver}}{{.Name}}(ctx context.Context, req *pb.{{.RequestType}}) (*pb.
 
 	streamErrorBody = "return errors.New(`{{.}}`)"
 	streamSkeleton  = `
-func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
+func {{.Receiver}}{{.Name}}(ctx context.Context, req <-chan *pb.{{.RequestType}},
+	resp chan *pb.{{.ResponseType}}) error {
 	{{.Body}}
 }
 `
