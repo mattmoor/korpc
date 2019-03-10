@@ -72,49 +72,49 @@ var _ = errors.New("don't complain about the import")
 
 	streamSkeleton = `
 func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
-        input := make(chan *pb.{{.RequestType}})
-        output := make(chan *pb.{{.ResponseType}})
+	input := make(chan *pb.{{.RequestType}})
+	output := make(chan *pb.{{.ResponseType}})
 
-        errCh := make(chan error)
+	errCh := make(chan error)
 
-        go func() {
-                defer close(input)
-                for {
-                        req, err := stream.Recv()
-                        if err == io.EOF {
-                                return
-                        }
-                        if err != nil {
-                                errCh <- err
-                                return
-                        }
-                        input <- req
-                }
-        }()
+	go func() {
+		defer close(input)
+		for {
+			req, err := stream.Recv()
+			if err == io.EOF {
+				return
+			}
+			if err != nil {
+				errCh <- err
+				return
+			}
+			input <- req
+		}
+	}()
 
-        go func() {
-                defer close(output)
-                {{.Body}}
-        }()
+	go func() {
+		defer close(output)
+		{{.Body}}
+	}()
 
-        go func() {
-                defer close(errCh)
-                for {
-                        select {
-                        case resp, ok := <-output:
-                                if !ok {
-                                        // Quit when the output channel closes.
-                                        return
-                                }
-                                if err := stream.Send(resp); err != nil {
-                                        errCh <- err
-                                        return
-                                }
-                        }
-                }
-        }()
+	go func() {
+		defer close(errCh)
+		for {
+			select {
+			case resp, ok := <-output:
+				if !ok {
+					// Quit when the output channel closes.
+					return
+				}
+				if err := stream.Send(resp); err != nil {
+					errCh <- err
+					return
+				}
+			}
+		}
+	}()
 
-        return <-errCh
+	return <-errCh
 }
 `
 	streamErrorBody = "errCh <- errors.New(`{{.}}`)"
