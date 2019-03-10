@@ -33,6 +33,6 @@ message Resource {
     string memory = 2;
   }
 
-  Block limits = 1;
-  Block requests = 2;
+  map<string,string> limits = 1;
+  map<string,string> requests = 2;
 }
