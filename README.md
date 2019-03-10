@@ -194,8 +194,8 @@ service SampleService {
 
 ```
 
-> This is the extent of what's currently supported, but adding more
-> options is a simple exercise is plumbing.
+> See [here](https://github.com/mattmoor/korpc/blob/master/include/korpc.proto)
+> for a complete list of supported options.
 
 
 ### Cleaning up deployed APIs.
