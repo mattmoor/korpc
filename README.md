@@ -84,6 +84,11 @@ individually, or in bulk (e.g. when bootstrapping a new project aka _now_) via:
 go generate ./pkg/methods/...
 ```
 
+> NOTE: After running this for the first time, you will have to ensure that your
+> working tree has all of the needed dependencies e.g. via `dep ensure` or
+> `dep init`.
+
+
 > WARNING: Running this will overwrite all existing method definitions, so
 > apply it carefully.
 
