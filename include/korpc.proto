@@ -13,12 +13,26 @@ message Options {
 
   int32 container_concurrency = 2;
 
-  // TODO(mattmoor): Resources
+  Resource resources = 3;
 
   repeated KeyValue env = 4;
+
+  int64 timeout_seconds = 5;
+
+  // TODO(mattmoor): Consider how to mount volumes in a sensible way.
 }
 
 message KeyValue {
   string name = 1;
   string value = 2;
+}
+
+message Resource {
+  message Block {
+    string cpu = 1;
+    string memory = 2;
+  }
+
+  Block limits = 1;
+  Block requests = 2;
 }
