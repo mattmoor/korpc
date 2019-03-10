@@ -30,6 +30,9 @@ korpc install
 
 You should only need to do this once per machine.
 
+> NOTE: you will also need to set `KO_DOCKER_REPO` to an appropriately
+> configured docker registry.
+
 ### How it works
 
 > This walks through the steps, however, for a fully-functioning sample
