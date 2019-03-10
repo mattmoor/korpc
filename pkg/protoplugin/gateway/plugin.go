@@ -42,8 +42,8 @@ func (p *plugin) Do(stuff *parameter.Stuff, request *plugin_go.CodeGeneratorRequ
 	var resp plugin_go.CodeGeneratorResponse
 	opt := &options{
 		Name:      "grpc-gateway",
-		Namespace: "default",
-		Domain:    "mattmoor.io",
+		Namespace: stuff.Namespace,
+		Domain:    stuff.Domain,
 	}
 	for _, fd := range request.ProtoFile {
 		if _, ok := codegen[fd.GetName()]; !ok {

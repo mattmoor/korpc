@@ -19,9 +19,11 @@ import (
 )
 
 var (
-	base    string
-	gen     string
-	methods string
+	base      string
+	gen       string
+	methods   string
+	domain    string
+	namespace string
 
 	Command = &cobra.Command{
 		Use:   "generate",
@@ -40,4 +42,10 @@ func init() {
 
 	Command.Flags().StringVarP(&methods, "methods", "M", "./pkg/methods",
 		"The directory under which to find RPC method implementations.")
+
+	Command.Flags().StringVarP(&namespace, "namespace", "n", "default",
+		"The namespace into which we should deploy things.")
+
+	Command.Flags().StringVarP(&domain, "domain", "D", "",
+		"The domain on which Istio will serve the resulting API.")
 }

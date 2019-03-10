@@ -70,6 +70,8 @@ func (p *plugin) doMeta(stuff *parameter.Stuff, request *plugin_go.CodeGenerator
 						Base:            stuff.Base,
 						GenDir:          stuff.GenDir,
 						MethodsDir:      stuff.MethodsDir,
+						Domain:          stuff.Domain,
+						Namespace:       stuff.Namespace,
 						Service:         sdp.GetName(),
 						Method:          mdp.GetName(),
 						NestedDirectory: stuff.NestedDirectory,
@@ -103,7 +105,7 @@ func (p *plugin) doMethod(stuff *parameter.Stuff, request *plugin_go.CodeGenerat
 
 	opt := &options{
 		Name:      naming.Service(sdp, mdp),
-		Namespace: "default",
+		Namespace: stuff.Namespace,
 		// {base}/gen/entrypoint/{service}/{method}
 		GatewayPath: filepath.Join(stuff.Base, stuff.GenDir, "entrypoint",
 			strings.ToLower(sdp.GetName()), strings.ToLower(mdp.GetName())),

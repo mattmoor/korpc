@@ -49,12 +49,12 @@ Then in the root of your repository you simply add the following
 to `doc.go` (really any `.go` file will do):
 
 ```go
-# TODO(mattmoor): Support the domain/namespace here
-//go:generate korpc generate --base=github.com/mattmoor/korpc-sample service.proto
+//go:generate korpc generate --base=github.com/mattmoor/korpc-sample --domain=mattmoor.io service.proto
 ```
 
-Replace the argument to `--base=` with the path for your project, and then list your
-own `.proto` files where you see `service.proto`.  You can now run:
+Replace the argument to `--base=` with the path for your project, `--domain=`
+with the domain on which to serve, and then list your own `.proto` files where
+you see `service.proto`.  You can now run:
 
 ```shell
 # Run from the root diectory of your repo:
@@ -191,6 +191,4 @@ so that Github code reviews will hide them until expanded:
 
 
 ### TODO list
-> TODO: don't hardcode domain.
-> TODO: don't hardcode namespace.
 > TODO: add `korpc deploy` using the installed `ko`.

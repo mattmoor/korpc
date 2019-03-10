@@ -23,10 +23,14 @@ import (
 )
 
 type Stuff struct {
-	Name            string `json:"name"`
-	Base            string `json:"base,omitempty"`
-	GenDir          string `json:"gen_dir,omitempty"`
-	MethodsDir      string `json:"methods_dir,omitempty"`
+	Name string `json:"name"`
+
+	Base       string `json:"base,omitempty"`
+	GenDir     string `json:"gen_dir,omitempty"`
+	MethodsDir string `json:"methods_dir,omitempty"`
+	Domain     string `json:"domain,omitempty"`
+	Namespace  string `json:"namespace,omitempty"`
+
 	Service         string `json:"service,omitempty"`
 	Method          string `json:"method,omitempty"`
 	NestedDirectory string `json:"nested_directory,omitempty"`

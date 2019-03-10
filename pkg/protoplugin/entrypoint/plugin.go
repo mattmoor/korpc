@@ -69,6 +69,8 @@ func (p *plugin) doMeta(stuff *parameter.Stuff, request *plugin_go.CodeGenerator
 						Base:            stuff.Base,
 						GenDir:          stuff.GenDir,
 						MethodsDir:      stuff.MethodsDir,
+						Domain:          stuff.Domain,
+						Namespace:       stuff.Namespace,
 						Service:         sdp.GetName(),
 						Method:          mdp.GetName(),
 						NestedDirectory: filepath.Join(stuff.NestedDirectory, dir),

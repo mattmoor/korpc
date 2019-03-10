@@ -42,6 +42,13 @@ func gogenerate(pkg string) error {
 }
 
 func run(cmd *cobra.Command, args []string) {
+	if base == "" {
+		log.Fatal("--base is a required option to `korpc generate`")
+	}
+	if domain == "" {
+		log.Fatal("--domain is a required option to `korpc generate`")
+	}
+
 	invocations := []struct {
 		PluginPath string
 		Params     parameter.Stuff
@@ -53,6 +60,8 @@ func run(cmd *cobra.Command, args []string) {
 			Base:            base,
 			GenDir:          gen,
 			MethodsDir:      methods,
+			Namespace:       namespace,
+			Domain:          domain,
 			NestedDirectory: filepath.Join(gen, "proto"),
 		},
 	}, {
@@ -62,6 +71,8 @@ func run(cmd *cobra.Command, args []string) {
 			Base:            base,
 			GenDir:          gen,
 			MethodsDir:      methods,
+			Namespace:       namespace,
+			Domain:          domain,
 			NestedDirectory: filepath.Join(gen, "entrypoint"),
 		},
 		Generate: true,
@@ -72,6 +83,8 @@ func run(cmd *cobra.Command, args []string) {
 			Base:            base,
 			GenDir:          gen,
 			MethodsDir:      methods,
+			Namespace:       namespace,
+			Domain:          domain,
 			NestedDirectory: filepath.Join(gen, "config"),
 		},
 		Generate: true,
@@ -82,6 +95,8 @@ func run(cmd *cobra.Command, args []string) {
 			Base:       base,
 			GenDir:     gen,
 			MethodsDir: methods,
+			Namespace:  namespace,
+			Domain:     domain,
 			// Put the gateway into config.
 			NestedDirectory: filepath.Join(gen, "config"),
 		},
@@ -93,6 +108,8 @@ func run(cmd *cobra.Command, args []string) {
 			Base:            base,
 			GenDir:          gen,
 			MethodsDir:      methods,
+			Namespace:       namespace,
+			Domain:          domain,
 			NestedDirectory: filepath.Join(methods),
 		},
 		Generate: true,
