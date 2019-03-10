@@ -22,6 +22,7 @@ type options struct {
 	Name        string
 	Namespace   string
 	GatewayPath string
+	MethodLower string
 	Options     korpc.Options
 }
 
@@ -44,6 +45,12 @@ spec:
             ports:
             - name: h2c
               containerPort: 8080
+            readinessProbe:
+              exec:
+                command: ["/ko-app/{{$.MethodLower}}", "probe"]
+            livenessProbe:
+              exec:
+                command: ["/ko-app/{{$.MethodLower}}", "probe"]
             env:{{range $val := $.Options.Env}}
             - name: {{$val.Name}}
               value: {{$val.Value}}{{end}}

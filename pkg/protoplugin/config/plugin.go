@@ -109,6 +109,7 @@ func (p *plugin) doMethod(stuff *parameter.Stuff, request *plugin_go.CodeGenerat
 		// {base}/gen/entrypoint/{service}/{method}
 		GatewayPath: filepath.Join(stuff.Base, stuff.GenDir, "entrypoint",
 			strings.ToLower(sdp.GetName()), strings.ToLower(mdp.GetName())),
+		MethodLower: strings.ToLower(mdp.GetName()),
 	}
 
 	addr, err := proto.GetExtension(mdp.Options, korpc.E_Options)
