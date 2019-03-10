@@ -90,29 +90,40 @@ go generate ./pkg/methods/...
 That's it.  You can now deploy a functioning GRPC service!
 
 ```shell
-# TODO: Add support for `korpc deploy`
-$ ko apply -f gen/config/
-2019/03/09 23:30:37 Building github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/stream
-2019/03/09 23:30:37 Building github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/unary
+# If codegen isn't needed, consider using: ko apply -f ./gen/config
+$ korpc deploy
+2019/03/10 00:30:37 Installing to: /usr/local/google/home/mattmoor/go/bin/.korpc/protoc-3.7.0
+2019/03/10 00:30:37 Generating proto...
+2019/03/10 00:30:37 Generating entrypoint...
+2019/03/10 00:30:37 Generating config...
+2019/03/10 00:30:37 Generating gateway...
+2019/03/10 00:30:37 Generating methods...
+2019/03/10 00:30:38 korpc code-generation complete.
+2019/03/10 00:30:38 To generate the skeleton for the RPC methods run:
+  go generate ./pkg/methods/...
+2019/03/10 00:30:38 To generate the skeleton for a single newly-added method run:
+  go generate ./pkg/methods/<ServiceName>/<MethodName>
+2019/03/10 00:30:38 Building github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/stream
+2019/03/10 00:30:38 Building github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/unary
 virtualservice.networking.istio.io/grpc-gateway unchanged
-2019/03/09 23:30:40 Using base gcr.io/distroless/static:latest for github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/stream
-2019/03/09 23:30:40 Using base gcr.io/distroless/static:latest for github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/unary
-2019/03/09 23:30:40 Publishing us.gcr.io/convoy-adapter/unary-3127e44d6c8b83e970c0ffe9fa17f688:latest
-2019/03/09 23:30:40 Publishing us.gcr.io/convoy-adapter/stream-e2352495a7144827a5c144e3140c7af7:latest
-2019/03/09 23:30:41 existing blob: sha256:b5fe0529ab3e5680a2b47a447efc061ada2e15e9ffc9ec920458bd2d194e945d
-2019/03/09 23:30:41 existing blob: sha256:4003b5b92ca98a8926d9112839f3f17e69f4ec4f995abb188a3ce3ccf93cd6d9
-2019/03/09 23:30:41 existing blob: sha256:4003b5b92ca98a8926d9112839f3f17e69f4ec4f995abb188a3ce3ccf93cd6d9
-2019/03/09 23:30:41 existing blob: sha256:aaced6115a76b945ac7aec28a3b2592b574fffbcd17abe4d92f05120289c429f
-2019/03/09 23:30:41 existing blob: sha256:805a5e151e44f883809630c2c63bc3dd879fe3090ad7783da2a212904c36b422
-2019/03/09 23:30:41 existing blob: sha256:4e1edcbff92b2fd48d837d1577dd69c4f00282a0ad675cbec0ec0ceec1384b65
-2019/03/09 23:30:41 existing blob: sha256:4e1edcbff92b2fd48d837d1577dd69c4f00282a0ad675cbec0ec0ceec1384b65
-2019/03/09 23:30:41 existing blob: sha256:758dbf4df7dca7256dabd8a6f49073a48109765d7e8fe08a95118b18ef9e1e2f
-2019/03/09 23:30:42 us.gcr.io/convoy-adapter/unary-3127e44d6c8b83e970c0ffe9fa17f688:latest: digest: sha256:503667f2e934c2cb4c62502fec851811d0bd87dd47f14aff36d82996f4d74fd5 size: 750
-2019/03/09 23:30:42 Published us.gcr.io/convoy-adapter/unary-3127e44d6c8b83e970c0ffe9fa17f688@sha256:503667f2e934c2cb4c62502fec851811d0bd87dd47f14aff36d82996f4d74fd5
-2019/03/09 23:30:42 us.gcr.io/convoy-adapter/stream-e2352495a7144827a5c144e3140c7af7:latest: digest: sha256:07676525f15e40eefe2cb3f232938fa2662fd5ca1674cf8f88669b19b47f436a size: 750
-2019/03/09 23:30:42 Published us.gcr.io/convoy-adapter/stream-e2352495a7144827a5c144e3140c7af7@sha256:07676525f15e40eefe2cb3f232938fa2662fd5ca1674cf8f88669b19b47f436a
-service.serving.knative.dev/stream-sampleservice configured
-service.serving.knative.dev/unary-sampleservice configured
+2019/03/10 00:30:40 Using base gcr.io/distroless/static:latest for github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/stream
+2019/03/10 00:30:40 Using base gcr.io/distroless/static:latest for github.com/mattmoor/korpc-sample/gen/entrypoint/sampleservice/unary
+2019/03/10 00:30:41 Publishing us.gcr.io/convoy-adapter/unary-3127e44d6c8b83e970c0ffe9fa17f688:latest
+2019/03/10 00:30:41 Publishing us.gcr.io/convoy-adapter/stream-e2352495a7144827a5c144e3140c7af7:latest
+2019/03/10 00:30:41 existing blob: sha256:4e1edcbff92b2fd48d837d1577dd69c4f00282a0ad675cbec0ec0ceec1384b65
+2019/03/10 00:30:41 existing blob: sha256:4003b5b92ca98a8926d9112839f3f17e69f4ec4f995abb188a3ce3ccf93cd6d9
+2019/03/10 00:30:41 existing blob: sha256:b28ef633cdf46402dbfebd680ff800cb5064741c23490ec45848f117e8fd5b65
+2019/03/10 00:30:41 existing blob: sha256:59d0f749366a464c46bb3eaa8b363018e05a1ef8fa2c72add3211921b10335d8
+2019/03/10 00:30:41 existing blob: sha256:4b9972d9e8791f5b95ea9a27a2e6325a72909da9ac7c681d4cde1784e5963a5f
+2019/03/10 00:30:41 existing blob: sha256:3b6d39948647812b4dac05aab3101b2409fe8c75ab5e11b5812b6fb0dcb515e3
+2019/03/10 00:30:41 existing blob: sha256:4e1edcbff92b2fd48d837d1577dd69c4f00282a0ad675cbec0ec0ceec1384b65
+2019/03/10 00:30:41 existing blob: sha256:4003b5b92ca98a8926d9112839f3f17e69f4ec4f995abb188a3ce3ccf93cd6d9
+2019/03/10 00:30:42 us.gcr.io/convoy-adapter/unary-3127e44d6c8b83e970c0ffe9fa17f688:latest: digest: sha256:e94cfa78617b78a0024a13e7f4b816c1fea97fc91a21a856341d84f764c5faa9 size: 750
+2019/03/10 00:30:42 Published us.gcr.io/convoy-adapter/unary-3127e44d6c8b83e970c0ffe9fa17f688@sha256:e94cfa78617b78a0024a13e7f4b816c1fea97fc91a21a856341d84f764c5faa9
+2019/03/10 00:30:42 us.gcr.io/convoy-adapter/stream-e2352495a7144827a5c144e3140c7af7:latest: digest: sha256:a9b9434d16e2ea7015c0f41bdab3a48f8d547d5c41ff1eb664a4666b1fa32997 size: 750
+2019/03/10 00:30:42 Published us.gcr.io/convoy-adapter/stream-e2352495a7144827a5c144e3140c7af7@sha256:a9b9434d16e2ea7015c0f41bdab3a48f8d547d5c41ff1eb664a4666b1fa32997
+service.serving.knative.dev/stream-sampleservice unchanged
+service.serving.knative.dev/unary-sampleservice unchanged
 ```
 
 [This example](https://github.com/mattmoor/korpc-sample) is deploying a
@@ -175,6 +186,11 @@ service SampleService {
 > options is a simple exercise is plumbing.
 
 
+### Cleaning up deployed APIs.
+
+Similar to `korpc deploy` you can simply `korpc delete` to tear down the
+deployed API.
+
 ### `.git{ignore,attributes}` recommendations
 
 `korpc` generates a lot of files to accomplish its task. We recommend adding
@@ -188,7 +204,3 @@ so that Github code reviews will hide them until expanded:
 /gen/** linguist-generated=true
 /**/korpc.go linguist-generated=true
 ```
-
-
-### TODO list
-> TODO: add `korpc deploy` using the installed `ko`.

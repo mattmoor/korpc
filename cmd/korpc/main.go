@@ -21,6 +21,8 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh/terminal"
 
+	"github.com/mattmoor/korpc/pkg/delete"
+	"github.com/mattmoor/korpc/pkg/deploy"
 	"github.com/mattmoor/korpc/pkg/generate"
 	"github.com/mattmoor/korpc/pkg/install"
 	"github.com/mattmoor/korpc/pkg/protoplugin"
@@ -56,6 +58,8 @@ func main() {
 		},
 	}
 
+	cmds.AddCommand(deploy.Command)
+	cmds.AddCommand(delete.Command)
 	cmds.AddCommand(generate.Command)
 	cmds.AddCommand(install.Command)
 
