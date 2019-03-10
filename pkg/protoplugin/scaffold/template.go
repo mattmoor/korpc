@@ -48,10 +48,16 @@ func {{.Receiver}}{{.Name}}(ctx context.Context, req *pb.{{.RequestType}}) (*pb.
 }
 `
 
-	streamErrorBody = "return errors.New(`{{.}}`)"
-	streamSkeleton  = `
-func {{.Receiver}}{{.Name}}(ctx context.Context, req <-chan *pb.{{.RequestType}},
-	resp chan *pb.{{.ResponseType}}) error {
+	streamErrorBody = `for {
+                select {
+                case <-req:
+                default:
+                        return errors.New("{{.}}")
+                }
+        }
+`
+	streamSkeleton = `
+func {{.Receiver}}{{.Name}}(ctx context.Context, req <-chan *pb.{{.RequestType}}, resp chan *pb.{{.ResponseType}}) error {
 	{{.Body}}
 }
 `

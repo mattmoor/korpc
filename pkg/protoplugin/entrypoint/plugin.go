@@ -157,7 +157,7 @@ func impl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescript
 		"Receiver":     "(s *server) ",
 	}
 	if mdp.GetServerStreaming() {
-		opt["Body"] = "return impl.Impl(stream.Context(), input, output)"
+		opt["Body"] = "errCh <- impl.Impl(stream.Context(), input, output)"
 		return execToString(streamMethod, opt)
 	} else {
 		opt["Body"] = "return impl.Impl(ctx, req)"
@@ -168,7 +168,7 @@ func impl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescript
 func unimpl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescriptorProto) (string, error) {
 	t, et := scaffold.UnaryMethod, scaffold.UnaryError
 	if mdp.GetServerStreaming() {
-		t, et = streamMethod, scaffold.StreamError
+		t, et = streamMethod, streamError
 	}
 
 	body, err := execToString(et, fmt.Sprintf("RPC Method %s.%s is not implemented",

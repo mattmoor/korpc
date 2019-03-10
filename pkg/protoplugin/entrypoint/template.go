@@ -38,7 +38,6 @@ import (
 	"io"
 
 	"golang.org/x/net/context"
-	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	pb "{{.ProtoImportPath}}"
@@ -76,47 +75,53 @@ func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
         input := make(chan *pb.{{.RequestType}})
         output := make(chan *pb.{{.ResponseType}})
 
-        grp := errgroup.Group{}
-        grp.Go(func() error {
+        errCh := make(chan error)
+
+        go func() {
                 defer close(input)
                 for {
                         req, err := stream.Recv()
                         if err == io.EOF {
-                                return nil
+                                return
                         }
                         if err != nil {
-                                return err
+                                errCh <- err
+                                return
                         }
                         input <- req
                 }
-        })
+        }()
 
-        grp.Go(func() error {
+        go func() {
+                defer close(output)
+                {{.Body}}
+        }()
+
+        go func() {
+                defer close(errCh)
                 for {
                         select {
                         case resp, ok := <-output:
                                 if !ok {
                                         // Quit when the output channel closes.
-                                        return nil
+                                        return
                                 }
                                 if err := stream.Send(resp); err != nil {
-                                        return err
+                                        errCh <- err
+                                        return
                                 }
                         }
                 }
-        })
+        }()
 
-        grp.Go(func() error {
-                defer close(output)
-                {{.Body}}
-        })
-
-        return grp.Wait()
+        return <-errCh
 }
 `
+	streamErrorBody = "errCh <- errors.New(`{{.}}`)"
 )
 
 var (
 	tmpl         = template.Must(template.New("entrypoint").Parse(entrypointTemplate))
 	streamMethod = template.Must(template.New("stream").Parse(streamSkeleton))
+	streamError  = template.Must(template.New("streamError").Parse(streamErrorBody))
 )
