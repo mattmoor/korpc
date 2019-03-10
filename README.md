@@ -32,6 +32,10 @@ You should only need to do this once per machine.
 
 ### How it works
 
+> This walks through the steps, however, for a fully-functioning sample
+> check out [this](https://github.com/mattmoor/korpc-sample/commits/with-stream)
+> sample repository.
+
 `korpc` starts with a simple GRPC service definition:
 
 ```proto
