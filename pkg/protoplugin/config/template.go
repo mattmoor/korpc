@@ -38,6 +38,7 @@ spec:
         spec:
           {{if ne "" $.Options.ServiceAccount}}serviceAccountName: {{$.Options.ServiceAccount}}{{end}}
           {{if ne 0 $.Options.ContainerConcurrency}}containerConcurrency: {{$.Options.ContainerConcurrency}}{{end}}
+          {{if ne 0 $.Options.TimeoutSeconds}}timeoutSeconds: {{$.Options.TimeoutSeconds}}{{end}}
           container:
             image: {{.GatewayPath}}
             ports:
@@ -46,5 +47,10 @@ spec:
             env:{{range $val := $.Options.Env}}
             - name: {{$val.Name}}
               value: {{$val.Value}}{{end}}
+            resources:
+              limits:{{range $key, $value := $.Options.GetResources.GetLimits}}
+                {{$key}}: {{$value}}{{end}}
+              requests:{{range $key, $value := $.Options.GetResources.GetRequests}}
+                {{$key}}: {{$value}}{{end}}
 `
 )
