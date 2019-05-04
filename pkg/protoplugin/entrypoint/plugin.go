@@ -123,12 +123,6 @@ func (p *plugin) doMethod(stuff *parameter.Stuff, request *plugin_go.CodeGenerat
 					if err != nil {
 						return nil, err
 					}
-				} else {
-					m, err := unimpl(sdp, mdp)
-					if err != nil {
-						return nil, err
-					}
-					opt.UnimplementedMethods = append(opt.UnimplementedMethods, m)
 				}
 			}
 		}
@@ -156,37 +150,17 @@ func impl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescript
 		"ResponseType": extract(mdp.GetOutputType()),
 		"Receiver":     "(s *server) ",
 	}
-	if mdp.GetServerStreaming() {
-		opt["Body"] = "errCh <- impl.Impl(stream.Context(), input, output)"
-		return execToString(streamMethod, opt)
-	} else {
+	switch {
+	case mdp.GetServerStreaming() && mdp.GetClientStreaming():
+		return execToString(streamInOutMethod, opt)
+	case mdp.GetClientStreaming():
+		return execToString(streamInMethod, opt)
+	case mdp.GetServerStreaming():
+		return execToString(streamOutMethod, opt)
+	default:
 		opt["Body"] = "return impl.Impl(ctx, req)"
 		return execToString(scaffold.UnaryMethod, opt)
 	}
-}
-
-func unimpl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescriptorProto) (string, error) {
-	t, et := scaffold.UnaryMethod, scaffold.UnaryError
-	if mdp.GetServerStreaming() {
-		t, et = streamMethod, streamError
-	}
-
-	body, err := execToString(et, fmt.Sprintf("RPC Method %s.%s is not implemented",
-		sdp.GetName(), mdp.GetName()))
-	if err != nil {
-		return "", err
-	}
-
-	opt := map[string]string{
-		"Service":      sdp.GetName(),
-		"Method":       mdp.GetName(),
-		"Name":         mdp.GetName(),
-		"RequestType":  extract(mdp.GetInputType()),
-		"ResponseType": extract(mdp.GetOutputType()),
-		"Body":         body,
-		"Receiver":     "(s *server) ",
-	}
-	return execToString(t, opt)
 }
 
 // proto types come through as `.package.TypeName` so extract the last portion.

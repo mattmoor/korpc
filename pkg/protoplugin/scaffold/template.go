@@ -48,25 +48,51 @@ func {{.Receiver}}{{.Name}}(ctx context.Context, req *pb.{{.RequestType}}) (*pb.
 }
 `
 
-	streamErrorBody = `for {
+	streamInOutErrorBody = `for {
 		select {
-		case <-req:
-		default:
-			return errors.New("{{.}}")
+		case _, ok := <-req:
+			if !ok {
+				return errors.New("{{.}}")
+			}
 		}
 	}
 `
-	streamSkeleton = `
+
+	streamInErrorBody = `for {
+		select {
+		case _, ok := <-req:
+			if !ok {
+				return nil, errors.New("{{.}}")
+			}
+		}
+	}
+`
+	streamOutErrorBody  = "return errors.New(`{{.}}`)"
+	streamInOutSkeleton = `
 func {{.Receiver}}{{.Name}}(ctx context.Context, req <-chan *pb.{{.RequestType}}, resp chan *pb.{{.ResponseType}}) error {
+	{{.Body}}
+}
+`
+	streamInSkeleton = `
+func {{.Receiver}}{{.Name}}(ctx context.Context, req <-chan *pb.{{.RequestType}}) (*pb.{{.ResponseType}}, error) {
+	{{.Body}}
+}
+`
+	streamOutSkeleton = `
+func {{.Receiver}}{{.Name}}(ctx context.Context, req *pb.{{.RequestType}}, resp chan *pb.{{.ResponseType}}) error {
 	{{.Body}}
 }
 `
 )
 
 var (
-	tmpl         = template.Must(template.New("scaffold").Parse(scaffoldTemplate))
-	UnaryMethod  = template.Must(template.New("unary").Parse(unarySkeleton))
-	StreamMethod = template.Must(template.New("stream").Parse(streamSkeleton))
-	UnaryError   = template.Must(template.New("unaryError").Parse(unaryErrorBody))
-	StreamError  = template.Must(template.New("streamError").Parse(streamErrorBody))
+	tmpl              = template.Must(template.New("scaffold").Parse(scaffoldTemplate))
+	UnaryMethod       = template.Must(template.New("unary").Parse(unarySkeleton))
+	StreamInOutMethod = template.Must(template.New("stream-in-out").Parse(streamInOutSkeleton))
+	StreamInMethod    = template.Must(template.New("stream-in").Parse(streamInSkeleton))
+	StreamOutMethod   = template.Must(template.New("stream-out").Parse(streamOutSkeleton))
+	UnaryError        = template.Must(template.New("unary-error").Parse(unaryErrorBody))
+	StreamInOutError  = template.Must(template.New("stream-in-out-error").Parse(streamInOutErrorBody))
+	StreamInError     = template.Must(template.New("stream-in-error").Parse(streamInErrorBody))
+	StreamOutError    = template.Must(template.New("stream-out-error").Parse(streamOutErrorBody))
 )

@@ -30,7 +30,6 @@ const (
 	entrypointTemplate = `package main
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -48,7 +47,9 @@ import (
 	impl "{{.ImplImportPath}}"
 )
 
-type server struct {}
+type server struct {
+  pb.Unimplemented{{.Service}}Server
+}
 
 {{.Implementation}}
 
@@ -97,14 +98,77 @@ func (h *health) Watch(*healthpb.HealthCheckRequest, healthpb.Health_WatchServer
 	return status.Error(codes.Unimplemented, "korpc does not implement Watch")
 }
 
-var _ = errors.New("don't complain about the import")
-
-{{range $val := .UnimplementedMethods}}
-{{$val}}
-{{end}}
+// Don't complain about the import
+var _ = io.EOF
 `
 
-	streamSkeleton = `
+	streamInSkeleton = `
+func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
+	input := make(chan *pb.{{.RequestType}})
+
+	errCh := make(chan error)
+
+	go func() {
+		defer close(input)
+		for {
+			req, err := stream.Recv()
+			if err == io.EOF {
+				return
+			}
+			if err != nil {
+				errCh <- err
+				return
+			}
+			input <- req
+		}
+	}()
+
+	go func() {
+		defer close(errCh)
+		resp, err := impl.Impl(stream.Context(), input)
+		if err != nil {
+			errCh <- err
+		} else if err := stream.SendAndClose(resp); err != nil {
+			errCh <- err
+		}
+	}()
+
+	return <-errCh
+}
+`
+
+	streamOutSkeleton = `
+func {{.Receiver}}{{.Name}}(input *pb.{{.RequestType}}, stream pb.{{.Service}}_{{.Method}}Server) error {
+	output := make(chan *pb.{{.ResponseType}})
+	errCh := make(chan error)
+
+	go func() {
+		defer close(output)
+		errCh <- impl.Impl(stream.Context(), input, output)
+	}()
+
+	go func() {
+		defer close(errCh)
+		for {
+			select {
+			case resp, ok := <-output:
+				if !ok {
+					// Quit when the output channel closes.
+					return
+				}
+				if err := stream.Send(resp); err != nil {
+					errCh <- err
+					return
+				}
+			}
+		}
+	}()
+
+	return <-errCh
+}
+`
+
+	streamInOutSkeleton = `
 func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
 	input := make(chan *pb.{{.RequestType}})
 	output := make(chan *pb.{{.ResponseType}})
@@ -128,7 +192,7 @@ func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
 
 	go func() {
 		defer close(output)
-		{{.Body}}
+		errCh <- impl.Impl(stream.Context(), input, output)
 	}()
 
 	go func() {
@@ -151,11 +215,11 @@ func {{.Receiver}}{{.Name}}(stream pb.{{.Service}}_{{.Method}}Server) error {
 	return <-errCh
 }
 `
-	streamErrorBody = "errCh <- errors.New(`{{.}}`)"
 )
 
 var (
-	tmpl         = template.Must(template.New("entrypoint").Parse(entrypointTemplate))
-	streamMethod = template.Must(template.New("stream").Parse(streamSkeleton))
-	streamError  = template.Must(template.New("streamError").Parse(streamErrorBody))
+	tmpl              = template.Must(template.New("entrypoint").Parse(entrypointTemplate))
+	streamInOutMethod = template.Must(template.New("stream-in-out").Parse(streamInOutSkeleton))
+	streamInMethod    = template.Must(template.New("stream-in").Parse(streamInSkeleton))
+	streamOutMethod   = template.Must(template.New("stream-out").Parse(streamOutSkeleton))
 )

@@ -68,8 +68,13 @@ func (p *plugin) Do(stuff *parameter.Stuff, request *plugin_go.CodeGeneratorRequ
 
 func unimpl(sdp *descriptor.ServiceDescriptorProto, mdp *descriptor.MethodDescriptorProto) (string, error) {
 	t, et := UnaryMethod, UnaryError
-	if mdp.GetServerStreaming() {
-		t, et = StreamMethod, StreamError
+	switch {
+	case mdp.GetServerStreaming() && mdp.GetClientStreaming():
+		t, et = StreamInOutMethod, StreamInOutError
+	case mdp.GetClientStreaming():
+		t, et = StreamInMethod, StreamInError
+	case mdp.GetServerStreaming():
+		t, et = StreamOutMethod, StreamOutError
 	}
 
 	body, err := execToString(et, fmt.Sprintf("You need to implement %s.%s!!!",
