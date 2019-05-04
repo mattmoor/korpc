@@ -25,7 +25,7 @@ var (
 )
 
 func InstallKO() error {
-	cmd := exec.Command("go", "get", "github.com/google/go-containerregistry/cmd/ko")
+	cmd := exec.Command("go", "get", "github.com/google/ko/cmd/ko")
 
 	// Pass through our environment
 	cmd.Env = os.Environ()
