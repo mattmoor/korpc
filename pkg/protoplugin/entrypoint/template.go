@@ -42,6 +42,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"go.opencensus.io/plugin/ocgrpc"
+	"go.opencensus.io/stats/view"
 
 	pb "{{.ProtoImportPath}}"
 	impl "{{.ImplImportPath}}"
@@ -58,6 +60,17 @@ func main() {
 		probe()
 		return
 	}
+
+	// Prior to this, exporters should be registered via:
+	// func init() {
+	//    view.RegisterExporter(...)
+	// }
+
+	// Register the views to collect server request count.
+	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
+		log.Fatal(err)
+	}
+
 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%s", os.Getenv("PORT")))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -65,7 +78,7 @@ func main() {
 
 	// The grpcServer is currently configured to serve h2c traffic by default.
 	// To configure credentials or encryption, see: https://grpc.io/docs/guides/auth.html#go
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
 
 	pb.Register{{.Service}}Server(grpcServer, &server{})
 	healthpb.RegisterHealthServer(grpcServer, &health{})
