@@ -157,7 +157,10 @@ func {{.Receiver}}{{.Name}}(input *pb.{{.RequestType}}, stream pb.{{.Service}}_{
 
 	go func() {
 		defer close(output)
-		errCh <- impl.Impl(stream.Context(), input, output)
+		err := impl.Impl(stream.Context(), input, output)
+		if err != nil {
+			errCh <- err
+		}
 	}()
 
 	go func() {
